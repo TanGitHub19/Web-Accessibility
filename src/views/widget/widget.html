@@ -1,19 +1,10 @@
-<style>
-    .asw-widget,
-    .asw-menu {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      font-weight: 400;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .asw-widget *,
-    .asw-menu * {
-      box-sizing: border-box !important;
-    }
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Draggable Accessibility Widget</title>
+  <style>
     .asw-menu-btn {
       position: fixed;
       z-index: 500000;
@@ -33,35 +24,9 @@
       text-decoration: none !important;
       background: linear-gradient(96deg, rgba(50,108,255,1) 0%, rgba(0,72,255,1) 100%) !important;
     }
-
     .asw-menu-btn svg {
       width: 36px;
       height: 36px;
-      min-height: 36px;
-      min-width: 36px;
-      max-width: 36px;
-      max-height: 36px;
-      background: transparent !important;
-    }
-
-    .asw-menu-btn:hover {
-      transform: scale(1.05);
-    }
-
-    @media only screen and (max-width: 768px) {
-      .asw-menu-btn {
-        width: 42px;
-        height: 42px;
-      }
-
-      .asw-menu-btn svg {
-        width: 26px;
-        height: 26px;
-        min-height: 26px;
-        min-width: 26px;
-        max-width: 26px;
-        max-height: 26px;
-      }
     }
   </style>
 </head>
@@ -83,6 +48,14 @@
   <script>
     const btn = document.querySelector(".asw-menu-btn");
 
+    window.addEventListener("load", () => {
+      const rect = btn.getBoundingClientRect();
+      btn.style.top = rect.top + "px";
+      btn.style.left = rect.left + "px";
+      btn.style.bottom = "auto";
+      btn.style.right = "auto";
+    });
+
     let isDragging = false;
     let dragMoved = false;
     let dragOffsetX = 0;
@@ -95,13 +68,6 @@
       dragOffsetY = e.clientY - btn.getBoundingClientRect().top;
       btn.style.transition = "none";
       btn.style.cursor = "grabbing";
-
-      // Switch to top/left positioning
-      btn.style.top = btn.offsetTop + "px";
-      btn.style.left = btn.offsetLeft + "px";
-      btn.style.right = "auto";
-      btn.style.bottom = "auto";
-      btn.style.position = "fixed";
     });
 
     document.addEventListener("mousemove", (e) => {
@@ -121,9 +87,8 @@
     });
 
     btn.addEventListener("click", (event) => {
-      if (dragMoved) {
-        event.preventDefault();
-      }
+      if (dragMoved) event.preventDefault();
     });
   </script>
-
+</body>
+</html>
