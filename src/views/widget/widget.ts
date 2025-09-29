@@ -8,7 +8,7 @@ import translateMenu from "../menu/translateMenu";
 export function renderWidget(options: ISeinnaSettings) {
     let {
         position = "bottom-left",
-        offset=[20,20]
+        offset = [20, 20]
     } = options;
 
     const widget: HTMLElement = document.createElement("div");
@@ -19,81 +19,106 @@ export function renderWidget(options: ISeinnaSettings) {
 
     let offsetX = offset?.[0] ?? 20;
     let offsetY = offset?.[1] ?? 25;
-    
-    let buttonStyle: {
-        left?: string,
-        bottom?: string,
-        right?: string,
-        top?: string
-    } = {
-        left: `${offsetX}px`,
-        bottom: `${ offsetY }px`,
-    }
 
-    if(position === "bottom-right") {
+    let buttonStyle: Partial<CSSStyleDeclaration> = {
+        left: `${offsetX}px`,
+        bottom: `${offsetY}px`,
+        position: "fixed",
+        cursor: "grab",
+        zIndex: "9999"
+    };
+
+    if (position === "bottom-right") {
         buttonStyle = {
             ...buttonStyle,
             right: `${offsetX}px`,
             left: "auto"
         }
-    } else if(position === "top-left") {
+    } else if (position === "top-left") {
         buttonStyle = {
             ...buttonStyle,
             top: `${offsetY}px`,
             bottom: "auto"
         }
-    } else if(position === "center-left") {
+    } else if (position === "center-left") {
         buttonStyle = {
             ...buttonStyle,
-            bottom: `calc(50% - (55px / 2) - ${ offset?.[1] ?? 0 }px)`
+            bottom: `calc(50% - (55px / 2) - ${offset?.[1] ?? 0}px)`
         }
-    } else if(position === "top-right") {
+    } else if (position === "top-right") {
         buttonStyle = {
             top: `${offsetY}px`,
             bottom: "auto",
             right: `${offsetX}px`,
             left: "auto"
         }
-    } else if(position === "center-right") {
+    } else if (position === "center-right") {
         buttonStyle = {
             right: `${offsetX}px`,
             left: "auto",
-            bottom: `calc(50% - (55px / 2) - ${ offset?.[1] ?? 0 }px)`
+            bottom: `calc(50% - (55px / 2) - ${offset?.[1] ?? 0}px)`
         }
-    } else if(position === "bottom-center") {
+    } else if (position === "bottom-center") {
         buttonStyle = {
             ...buttonStyle,
-            left: `calc(50% - (55px / 2) - ${ offset?.[0] ?? 0 }px)`
+            left: `calc(50% - (55px / 2) - ${offset?.[0] ?? 0}px)`
         }
-    } else if(position === "top-center") {
+    } else if (position === "top-center") {
         buttonStyle = {
             top: `${offsetY}px`,
             bottom: "auto",
-            left: `calc(50% - (55px / 2) - ${ offset?.[0] ?? 0 }px)`
+            left: `calc(50% - (55px / 2) - ${offset?.[0] ?? 0}px)`
         }
     }
 
     Object.assign($btn.style, buttonStyle);
 
-    let menu;
-    $btn?.addEventListener("click", (event) => {    
-        event.preventDefault();
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
 
-        if(menu) {
-            toggle(menu);
-        } else {
-            menu = renderMenu({
-                ...options,
-                container: widget,
-            });
+    $btn.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        dragOffsetX = e.clientX - $btn.getBoundingClientRect().left;
+        dragOffsetY = e.clientY - $btn.getBoundingClientRect().top;
+        $btn.style.transition = "none";
+        $btn.style.cursor = "grabbing";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            $btn.style.left = e.clientX - dragOffsetX + "px";
+            $btn.style.top = e.clientY - dragOffsetY + "px";
+            $btn.style.right = "auto"; 
+            $btn.style.bottom = "auto"; 
         }
     });
 
-    
-    translateMenu(widget);
-    
-    document.body.appendChild(widget);
+    document.addEventListener("mouseup", () => {
+        if (isDragging) {
+            isDragging = false;
+            $btn.style.transition = ""; 
+            $btn.style.cursor = "grab";
+        }
+    });
 
+    let menu;
+    $btn?.addEventListener("click", (event) => {
+        if (!isDragging) {
+            event.preventDefault();
+            if (menu) {
+                toggle(menu);
+            } else {
+                menu = renderMenu({
+                    ...options,
+                    container: widget,
+                });
+            }
+        }
+    });
+
+    translateMenu(widget);
+    document.body.appendChild(widget);
 
     return widget;
 }
