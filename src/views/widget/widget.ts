@@ -74,37 +74,44 @@ export function renderWidget(options: ISeinnaSettings) {
     Object.assign($btn.style, buttonStyle);
 
     let isDragging = false;
+    let dragMoved = false;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
 
     $btn.addEventListener("mousedown", (e) => {
         isDragging = true;
+        dragMoved = false;
         dragOffsetX = e.clientX - $btn.getBoundingClientRect().left;
         dragOffsetY = e.clientY - $btn.getBoundingClientRect().top;
         $btn.style.transition = "none";
         $btn.style.cursor = "grabbing";
+
+        // Switch to top/left mode so drag works correctly
+        $btn.style.top = $btn.offsetTop + "px";
+        $btn.style.left = $btn.offsetLeft + "px";
+        $btn.style.right = "auto";
+        $btn.style.bottom = "auto";
     });
 
     document.addEventListener("mousemove", (e) => {
         if (isDragging) {
+            dragMoved = true;
             $btn.style.left = e.clientX - dragOffsetX + "px";
             $btn.style.top = e.clientY - dragOffsetY + "px";
-            $btn.style.right = "auto"; 
-            $btn.style.bottom = "auto"; 
         }
     });
 
     document.addEventListener("mouseup", () => {
         if (isDragging) {
             isDragging = false;
-            $btn.style.transition = ""; 
+            $btn.style.transition = "";
             $btn.style.cursor = "grab";
         }
     });
 
     let menu;
     $btn?.addEventListener("click", (event) => {
-        if (!isDragging) {
+        if (!dragMoved) {
             event.preventDefault();
             if (menu) {
                 toggle(menu);
